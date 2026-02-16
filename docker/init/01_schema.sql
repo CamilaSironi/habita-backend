@@ -1,0 +1,4 @@
+-- Migrations-first setup:
+-- The schema and seed are managed through TypeORM migrations in src/db/migrations.
+-- Run:
+--   npm run migration:run

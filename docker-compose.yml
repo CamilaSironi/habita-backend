@@ -1,0 +1,20 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: habita-postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: habita
+    ports:
+      - "5432:5432"
+    volumes:
+      - habita_pg_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d habita"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  habita_pg_data:
