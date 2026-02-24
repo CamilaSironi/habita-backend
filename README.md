@@ -97,3 +97,4 @@ src/
 ## Documentación
 
 - Arquitectura y patrones de diseño: [docs/arquitectura.md](docs/arquitectura.md)
+- Recorrido completo por archivos, capas y flujo: [docs/recorrido-archivos-y-roles.md](docs/recorrido-archivos-y-roles.md)
