@@ -93,3 +93,7 @@ src/
   routes/
   services/
 ```
+
+## Documentación
+
+- Arquitectura y patrones de diseño: [docs/arquitectura.md](docs/arquitectura.md)
