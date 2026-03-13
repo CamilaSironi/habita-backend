@@ -8,6 +8,7 @@ import {
   UpdateDateColumn
 } from "typeorm";
 import { PropertyEntity } from "./PropertyEntity";
+import { UserEntity } from "./UserEntity";
 
 export type InquiryStatus = "new" | "contacted" | "closed" | "spam";
 
@@ -22,6 +23,10 @@ export class InquiryEntity {
 
   @Column({ name: "user_id", type: "uuid", nullable: true })
   userId!: string | null;
+
+  @ManyToOne(() => UserEntity, { onDelete: "SET NULL" })
+  @JoinColumn({ name: "user_id" })
+  user!: UserEntity | null;
 
   @Column({ name: "contact_name", type: "text" })
   contactName!: string;

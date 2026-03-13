@@ -7,6 +7,7 @@ import {
   PrimaryGeneratedColumn
 } from "typeorm";
 import { PropertyEntity } from "./PropertyEntity";
+import { UserEntity } from "./UserEntity";
 
 @Entity({ name: "favorites" })
 @Index(["userId", "propertyId"], { unique: true })
@@ -23,4 +24,8 @@ export class FavoritesEntity {
 
   @Column({ name: "user_id", type: "uuid", nullable: false })
   userId!: string;
+
+  @ManyToOne(() => UserEntity, { onDelete: "CASCADE" })
+  @JoinColumn({ name: "user_id" })
+  user!: UserEntity;
 }
