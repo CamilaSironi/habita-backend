@@ -25,7 +25,7 @@ export class UserEntity {
   @Column({
     type: "enum",
     enum: ["admin", "tenant", "owner"],
-    enumName: "user_rol"
+    enumName: "user_role"
   })
   rol!: UserRol;
 }

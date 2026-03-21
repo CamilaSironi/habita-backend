@@ -35,12 +35,12 @@ export class InitSchema1739720000000 implements MigrationInterface {
     `);
 
     await queryRunner.query(`
-      CREATE TABLE IF NOT EXISTS app_users (
+      CREATE TABLE IF NOT EXISTS users (
         id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
         email TEXT NOT NULL UNIQUE,
-        full_name TEXT NOT NULL,
-        password_hash TEXT,
-        role user_role NOT NULL DEFAULT 'tenant',
+        name TEXT NOT NULL,
+        password TEXT,
+        rol user_role NOT NULL DEFAULT 'tenant',
         created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
         updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
       )
@@ -63,7 +63,7 @@ export class InitSchema1739720000000 implements MigrationInterface {
         latitude NUMERIC(9,6) NOT NULL CHECK (latitude BETWEEN -90 AND 90),
         longitude NUMERIC(9,6) NOT NULL CHECK (longitude BETWEEN -180 AND 180),
         is_published BOOLEAN NOT NULL DEFAULT TRUE,
-        owner_id UUID REFERENCES app_users(id) ON DELETE SET NULL,
+        owner_id UUID REFERENCES users(id) ON DELETE SET NULL,
         created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
         updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
       )
@@ -84,7 +84,7 @@ export class InitSchema1739720000000 implements MigrationInterface {
 
     await queryRunner.query(`
       CREATE TABLE IF NOT EXISTS favorites (
-        user_id UUID NOT NULL REFERENCES app_users(id) ON DELETE CASCADE,
+        user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
         property_id UUID NOT NULL REFERENCES properties(id) ON DELETE CASCADE,
         created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
         PRIMARY KEY (user_id, property_id)
@@ -95,7 +95,7 @@ export class InitSchema1739720000000 implements MigrationInterface {
       CREATE TABLE IF NOT EXISTS inquiries (
         id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
         property_id UUID NOT NULL REFERENCES properties(id) ON DELETE RESTRICT,
-        user_id UUID REFERENCES app_users(id) ON DELETE SET NULL,
+        user_id UUID REFERENCES users(id) ON DELETE SET NULL,
         contact_name TEXT NOT NULL,
         contact_email TEXT NOT NULL,
         message TEXT NOT NULL CHECK (length(trim(message)) > 0),
@@ -127,10 +127,10 @@ export class InitSchema1739720000000 implements MigrationInterface {
     await queryRunner.query(`CREATE INDEX IF NOT EXISTS idx_inquiries_contact_email ON inquiries(contact_email)`);
     await queryRunner.query(`CREATE INDEX IF NOT EXISTS idx_inquiries_status_created_at ON inquiries(status, created_at DESC)`);
 
-    await queryRunner.query(`DROP TRIGGER IF EXISTS trg_app_users_updated_at ON app_users`);
+    await queryRunner.query(`DROP TRIGGER IF EXISTS trg_users_updated_at ON users`);
     await queryRunner.query(`
-      CREATE TRIGGER trg_app_users_updated_at
-      BEFORE UPDATE ON app_users
+      CREATE TRIGGER trg_users_updated_at
+      BEFORE UPDATE ON users
       FOR EACH ROW
       EXECUTE FUNCTION set_updated_at()
     `);
@@ -155,13 +155,13 @@ export class InitSchema1739720000000 implements MigrationInterface {
   public async down(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(`DROP TRIGGER IF EXISTS trg_inquiries_updated_at ON inquiries`);
     await queryRunner.query(`DROP TRIGGER IF EXISTS trg_properties_updated_at ON properties`);
-    await queryRunner.query(`DROP TRIGGER IF EXISTS trg_app_users_updated_at ON app_users`);
+    await queryRunner.query(`DROP TRIGGER IF EXISTS trg_users_updated_at ON users`);
 
     await queryRunner.query(`DROP TABLE IF EXISTS inquiries`);
     await queryRunner.query(`DROP TABLE IF EXISTS favorites`);
     await queryRunner.query(`DROP TABLE IF EXISTS property_images`);
     await queryRunner.query(`DROP TABLE IF EXISTS properties`);
-    await queryRunner.query(`DROP TABLE IF EXISTS app_users`);
+    await queryRunner.query(`DROP TABLE IF EXISTS users`);
 
     await queryRunner.query(`DROP FUNCTION IF EXISTS set_updated_at`);
     await queryRunner.query(`DROP TYPE IF EXISTS inquiry_status`);
