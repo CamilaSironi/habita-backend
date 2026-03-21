@@ -34,11 +34,11 @@ export class UserController {
         id: user.id,
         name: user.name,
         email: user.email,
+        password: user.password,
         rol: user.rol
       });
     } catch (error) {
-      // Assuming unique email error
-      return response.status(409).json({ error: "Email already exists" });
+      return response.status(500).json(error);
     }
   };
 

@@ -2,9 +2,11 @@ import "reflect-metadata";
 import path from "path";
 import { DataSource } from "typeorm";
 import { env } from "../config/env";
+import { FavoritesEntity } from "./entities/FavoritesEntity";
+import { InquiryEntity } from "./entities/InquiryEntity";
 import { PropertyEntity } from "./entities/PropertyEntity";
 import { PropertyImageEntity } from "./entities/PropertyImageEntity";
-import { InquiryEntity } from "./entities/InquiryEntity";
+import { UserEntity } from "./entities/UserEntity";
 
 export const appDataSource = new DataSource({
   type: "postgres",
@@ -13,7 +15,7 @@ export const appDataSource = new DataSource({
   username: env.dbUser,
   password: env.dbPassword,
   database: env.dbName,
-  entities: [PropertyEntity, PropertyImageEntity, InquiryEntity],
+  entities: [PropertyEntity, PropertyImageEntity, InquiryEntity, FavoritesEntity, UserEntity],
   migrations: [path.join(__dirname, "migrations", "*.{ts,js}")],
   synchronize: false,
   logging: false
