@@ -48,7 +48,12 @@ describe("UserController", () => {
 
       expect(userServiceMock.create).toHaveBeenCalled();
       expect(mockResponse.status).toHaveBeenCalledWith(201);
-      expect(mockResponse.json).toHaveBeenCalledWith(user);
+      expect(mockResponse.json).toHaveBeenCalledWith({
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        rol: user.rol
+      });
     });
 
     it("should return 400 if payload is invalid", async () => {
