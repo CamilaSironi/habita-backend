@@ -10,7 +10,7 @@ export class FavoritesController {
   constructor(private readonly favoritesService: FavoritesService) {}
 
   add = async (request: Request, response: Response) => {
-    const userId = (request as any).user?.id; // Assuming auth middleware sets req.user
+    const userId = (request as any).user?.id;
     if (!userId) {
       return response.status(401).json({ error: "Unauthorized" });
     }
