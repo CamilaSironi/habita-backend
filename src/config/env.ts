@@ -19,5 +19,7 @@ export const env = {
   dbPort: Number(getEnv("DB_PORT", "5433")),
   dbName: getEnv("DB_NAME", "habita"),
   dbUser: getEnv("DB_USER", "postgres"),
-  dbPassword: getEnv("DB_PASSWORD", "postgres")
+  dbPassword: getEnv("DB_PASSWORD", "postgres"),
+  AUTH0_AUDIENCE: getEnv("AUTH0_AUDIENCE", "https://habita-backend"),
+  AUTH0_ISSUER_BASE_URL: getEnv("AUTH0_ISSUER_BASE_URL", "https://sironi.us.auth0.com")
 };

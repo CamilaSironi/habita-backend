@@ -6,8 +6,8 @@ export function createFavoritesRoutes(favoritesController: FavoritesController) 
   const router = Router();
 
   router.post("/favorites", authMiddleware, favoritesController.add);
-  router.delete("/favorites/:propertyId", authMiddleware, favoritesController.remove);
-  router.get("/favorites", authMiddleware, favoritesController.list);
+  router.delete("/favorites/:userId/:propertyId", authMiddleware, favoritesController.remove);
+  router.get("/favorites/:userId", authMiddleware, favoritesController.list);
 
   return router;
 }

@@ -17,6 +17,6 @@ export const appDataSource = new DataSource({
   database: env.dbName,
   entities: [PropertyEntity, PropertyImageEntity, InquiryEntity, FavoritesEntity, UserEntity],
   migrations: [path.join(__dirname, "migrations", "*.{ts,js}")],
-  synchronize: false,
+  synchronize: true,
   logging: false
 });

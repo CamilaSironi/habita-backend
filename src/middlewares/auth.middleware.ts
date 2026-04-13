@@ -1,13 +1,10 @@
+import { env } from "../config/env";
 import { auth } from "express-oauth2-jwt-bearer";
 import type { Request, Response, NextFunction } from "express";
 
-if (!process.env.AUTH0_AUDIENCE || !process.env.AUTH0_ISSUER_BASE_URL) {
-  throw new Error("Missing Auth0 environment variables");
-}
-
 const checkJwt = auth({
-  audience: process.env.AUTH0_AUDIENCE,
-  issuerBaseURL: process.env.AUTH0_ISSUER_BASE_URL,
+  audience: env.AUTH0_AUDIENCE || "",
+  issuerBaseURL: env.AUTH0_ISSUER_BASE_URL || "",
   tokenSigningAlg: "RS256"
 });
 
