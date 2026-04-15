@@ -13,6 +13,9 @@ export class PropertyImageEntity {
   @PrimaryGeneratedColumn("uuid")
   id!: string;
 
+  @Column({ name: "property_id", type: "uuid" })
+  propertyId!: string;
+
   @ManyToOne(() => PropertyEntity, (property) => property.images, { onDelete: "CASCADE" })
   @JoinColumn({ name: "property_id" })
   property!: PropertyEntity;

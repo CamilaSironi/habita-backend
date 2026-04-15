@@ -1,15 +1,33 @@
 import type { CreateFavoritesInput, Favorites } from "../domain/entities/favorites";
 import type { FavoritesRepository } from "../repositories/interfaces/FavoritesRepository";
+import type { PropertyRepository } from "../repositories/interfaces/PropertyRepository";
 
 export class FavoritesService {
-  constructor(private readonly favoritesRepository: FavoritesRepository) {}
+  constructor(
+    private readonly favoritesRepository: FavoritesRepository,
+    private readonly propertyRepository: PropertyRepository
+  ) {}
 
   async addFavorite(input: CreateFavoritesInput): Promise<Favorites> {
-    return this.favoritesRepository.create(input);
+    const internalPropertyId = await this.propertyRepository.getInternalIdByPublicId(input.propertyId);
+
+    if (!internalPropertyId) {
+      throw new Error("Property not found");
+    }
+    return this.favoritesRepository.create({
+      userId: input.userId,
+      propertyId: internalPropertyId
+    });
   }
 
   async removeFavorite(userId: string, propertyId: string): Promise<void> {
-    return this.favoritesRepository.delete(userId, propertyId);
+    const internalPropertyId = await this.propertyRepository.getInternalIdByPublicId(propertyId);
+
+    if (!internalPropertyId) {
+        throw new Error("Property not found");
+      }
+
+    return this.favoritesRepository.delete(userId, internalPropertyId);
   }
 
   async getUserFavorites(userId: string): Promise<Favorites[]> {

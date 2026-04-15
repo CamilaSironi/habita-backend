@@ -9,13 +9,13 @@ export class TypeormPropertyImageRepository implements PropertyImageRepository {
 
     async findByPropertyId(propertyId: string): Promise<PropertyImage[]> {
         const images = await this.ormRepository.find({
-            where: { property: { publicId: propertyId } },
+            where:  { propertyId },
             order: { position: "ASC" }
         });
 
         return images.map(img => ({
             id: img.id,
-            propertyId,
+            propertyId: img.propertyId,
             imageUrl: img.imageUrl,
             altText: img.altText,
             position: img.position,
@@ -43,15 +43,11 @@ export class TypeormPropertyImageRepository implements PropertyImageRepository {
     }
 
     async create(input: CreatePropertyImageInput): Promise<PropertyImage> {
-        const property = await this.ormRepository.manager.findOne(PropertyEntity, { where: { publicId: input.propertyId } });
-        if (!property) {
-            throw new Error("Property not found");
-        }
-
         let position = input.position ?? 0;
+
         if (input.position === undefined) {
             const existingImages = await this.ormRepository.find({
-                where: { property: { publicId: input.propertyId } },
+                where: { propertyId: input.propertyId },
                 select: ['position']
             });
             const maxPos = existingImages.length > 0 ? Math.max(...existingImages.map(img => img.position)) : -1;
@@ -59,7 +55,7 @@ export class TypeormPropertyImageRepository implements PropertyImageRepository {
         }
 
         const imageToSave = this.ormRepository.create({
-            property,
+            propertyId: input.propertyId,
             imageUrl: input.imageUrl,
             altText: input.altText || null,
             position,
@@ -70,7 +66,7 @@ export class TypeormPropertyImageRepository implements PropertyImageRepository {
 
         return {
             id: saved.id,
-            propertyId: input.propertyId,
+            propertyId: saved.propertyId,
             imageUrl: saved.imageUrl,
             altText: saved.altText,
             position: saved.position,
@@ -105,20 +101,38 @@ export class TypeormPropertyImageRepository implements PropertyImageRepository {
     }
 
     async delete(id: string): Promise<void> {
+        const image = await this.ormRepository.findOne({
+            where: { id }
+        });
+
+        if (!image) {
+            throw new Error("Image not found");
+        }
+
+        const wasCover = image.isCover;
+        const propertyId = image.propertyId;
+
         await this.ormRepository.delete(id);
+
+        if (wasCover) {
+            const nextImage = await this.ormRepository.findOne({
+                where: { propertyId },
+                order: { position: "ASC" }
+            });     
+        if (nextImage) {
+            await this.ormRepository.update(nextImage.id, { isCover: true });
+        }
+        }
     }
 
     async setCover(propertyId: string, imageId: string): Promise<void> {
         await this.ormRepository.manager.transaction(async manager => {
-            const property = await manager.findOne(PropertyEntity, { where: { publicId: propertyId } });
-            if (!property) {
-                throw new Error("Property not found");
-            }
+            
             // Unset all covers for the property
             await manager.createQueryBuilder()
                 .update(PropertyImageEntity)
                 .set({ isCover: false })
-                .where("property_id = :propertyId", { propertyId: property.id })
+                .where("property_id = :propertyId", { propertyId })
                 .execute();
             // Set the new cover
             await manager.update(PropertyImageEntity, { id: imageId }, { isCover: true });

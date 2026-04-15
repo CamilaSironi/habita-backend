@@ -9,6 +9,7 @@ export interface User {
 }
 
 export interface CreateUserInput {
+    id: string;
     name: string;
     email: string;
     password: string;

@@ -6,9 +6,9 @@ export function createUserRoutes(userController: UserController) {
   const router = Router();
 
   router.post("/users", authMiddleware, userController.create);
-  router.get("/users/:id", authMiddleware, userController.getById);
-  router.put("/users/:id", authMiddleware, userController.update);
-  router.delete("/users/:id", authMiddleware, userController.delete);
+  router.get("/users/me", authMiddleware, userController.getMe);
+  router.put("/users/me", authMiddleware, userController.update);
+  router.delete("/users/me", authMiddleware, userController.delete);
 
   return router;
 }

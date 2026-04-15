@@ -5,8 +5,7 @@ import type { InquiryService } from "../services/InquiryService";
 const createInquirySchema = z.object({
   contactName: z.string().trim().min(2),
   contactEmail: z.string().trim().email(),
-  message: z.string().trim().min(5),
-  userId: z.string().uuid().optional()
+  message: z.string().trim().min(5)
 });
 
 export class InquiryController {
@@ -27,7 +26,13 @@ export class InquiryController {
       });
     }
 
-    const inquiry = await this.inquiryService.createByPublicPropertyId(publicId, bodyResult.data);
+    const userId = (request as any).user?.id ?? null;
+
+    const inquiry = await this.inquiryService.createByPublicPropertyId(publicId,
+    {
+      ...bodyResult.data,
+      userId
+    });
 
     if (!inquiry) {
       return response.status(404).json({ error: "Property not found" });

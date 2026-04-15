@@ -9,8 +9,8 @@ export class UserService {
     return this.userRepository.create(input);
   }
 
-  async findById(id: string): Promise<User | null> {
-    return this.userRepository.findById(id);
+  async getMe(id: string): Promise<User | null> {
+    return this.userRepository.getMe(id);
   }
 
   async update(id: string, input: UpdateUserInput): Promise<User> {

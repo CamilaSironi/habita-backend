@@ -1,11 +1,21 @@
 import type { CreatePropertyImageInput, PropertyImage, UpdatePropertyImageInput } from "../domain/entities/propertyImage";
 import type { PropertyImageRepository } from "../repositories/interfaces/PropertyImageRepository";
+import { PropertyRepository } from "../repositories/interfaces/PropertyRepository";
 
 export class PropertyImageService {
-  constructor(private readonly propertyImageRepository: PropertyImageRepository) {}
+  constructor(
+    private readonly propertyImageRepository: PropertyImageRepository,
+    private readonly propertyRepository: PropertyRepository
+  ) {}
 
   async getByPropertyId(propertyId: string): Promise<PropertyImage[]> {
-    return this.propertyImageRepository.findByPropertyId(propertyId);
+    const internalPropertyId = await this.propertyRepository.getInternalIdByPublicId(propertyId);
+
+      if (!internalPropertyId) {
+        throw new Error("Property not found");
+      }
+
+    return this.propertyImageRepository.findByPropertyId(internalPropertyId);
   }
 
   async getById(id: string): Promise<PropertyImage | null> {
@@ -13,7 +23,16 @@ export class PropertyImageService {
   }
 
   async create(input: CreatePropertyImageInput): Promise<PropertyImage> {
-    return this.propertyImageRepository.create(input);
+    const internalPropertyId = await this.propertyRepository.getInternalIdByPublicId(input.propertyId);
+
+    if (!internalPropertyId) {
+      throw new Error("Property not found");
+    }
+
+    return this.propertyImageRepository.create({
+      ...input,
+      propertyId: internalPropertyId
+    });
   }
 
   async update(id: string, input: UpdatePropertyImageInput): Promise<PropertyImage> {
@@ -25,6 +44,12 @@ export class PropertyImageService {
   }
 
   async setCover(propertyId: string, imageId: string): Promise<void> {
-    return this.propertyImageRepository.setCover(propertyId, imageId);
+    const internalPropertyId = await this.propertyRepository.getInternalIdByPublicId(propertyId);
+
+    if (!internalPropertyId) {
+      throw new Error("Property not found");
+    }
+
+    return this.propertyImageRepository.setCover(internalPropertyId, imageId);
   }
 }

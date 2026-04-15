@@ -6,7 +6,7 @@ import { UserEntity } from "../../db/entities/UserEntity";
 export class TypeormUserRepository implements UserRepository {
     constructor(private readonly ormRepository: Repository<UserEntity>) {}
 
-    async findById(id: string): Promise<User | null> {
+    async getMe(id: string): Promise<User | null> {
         const user = await this.ormRepository.findOne({ where: { id } });
         if (!user) return null;
         return {
@@ -20,6 +20,7 @@ export class TypeormUserRepository implements UserRepository {
 
     async create(input: CreateUserInput): Promise<User> {
         const userToSave = this.ormRepository.create({
+            id: input.id,
             name: input.name,
             email: input.email,
             password: input.password,
@@ -38,15 +39,23 @@ export class TypeormUserRepository implements UserRepository {
     }
 
     async update(id: string, input: UpdateUserInput): Promise<User> {
-        await this.ormRepository.update(id, input);
-        const updated = await this.ormRepository.findOne({ where: { id } });
-        if (!updated) throw new Error("User not found after update");
+        const user = await this.ormRepository.findOne({ where: { id } });
+
+        if (!user) {
+            console.log("USUARIO CON ID:", id);
+            throw new Error("User not found");
+        }
+
+        Object.assign(user, input);
+
+        const saved = await this.ormRepository.save(user);
+
         return {
-            id: updated.id,
-            name: updated.name,
-            email: updated.email,
-            password: updated.password,
-            rol: updated.rol
+            id: saved.id,
+            name: saved.name,
+            email: saved.email,
+            password: saved.password,
+            rol: saved.rol
         };
     }
 

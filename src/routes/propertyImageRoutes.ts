@@ -5,11 +5,11 @@ import type { PropertyImageController } from "../controllers/PropertyImageContro
 export function createPropertyImageRoutes(propertyImageController: PropertyImageController) {
   const router = Router();
 
-  router.get("/properties/:propertyId/images", authMiddleware, propertyImageController.listByProperty);
-  router.post("/properties/:propertyId/images", authMiddleware, propertyImageController.create);
-  router.put("/images/:id", authMiddleware, propertyImageController.update);
+  router.get("/properties/:publicId/images", propertyImageController.listByProperty);
+  router.post("/properties/:publicId/images", authMiddleware, propertyImageController.create); 
+  router.put("/images/:id", authMiddleware, propertyImageController.update); 
   router.delete("/images/:id", authMiddleware, propertyImageController.delete);
-  router.put("/properties/:propertyId/images/:imageId/cover", authMiddleware, propertyImageController.setCover);
+  router.put("/properties/:publicId/images/:imageId/cover", authMiddleware, propertyImageController.setCover);
 
   return router;
 }

@@ -29,7 +29,17 @@ export class UserController {
     }
 
     try {
-      const user = await this.userService.create(bodyResult.data);
+      const authUser = (request as any).user;
+
+      if (!authUser?.id) {
+        return response.status(401).json({ error: "Unauthorized" });
+      }
+
+      const user = await this.userService.create({
+        id: authUser.id,
+        ...bodyResult.data
+      });
+
       return response.status(201).json({
         id: user.id,
         name: user.name,
@@ -41,29 +51,27 @@ export class UserController {
     }
   };
 
-  getById = async (request: Request, response: Response) => {
-    const { id } = request.params;
-    if (!id || typeof id !== "string") {
-      return response.status(400).json({ error: "id is required" });
+  getMe = async (req: Request, res: Response) => {
+    const userId = (req as any).user?.id;
+
+    if (!userId) {
+      return res.status(401).json({ error: "Unauthorized" });
     }
 
-    const user = await this.userService.findById(id);
+    const user = await this.userService.getMe(userId);
+
     if (!user) {
-      return response.status(404).json({ error: "User not found" });
+      return res.status(404).json({ error: "User not found" });
     }
 
-    return response.json({
-      id: user.id,
-      name: user.name,
-      email: user.email,
-      rol: user.rol
-    });
+    return res.json(user);
   };
 
   update = async (request: Request, response: Response) => {
-    const { id } = request.params;
-    if (!id || typeof id !== "string") {
-      return response.status(400).json({ error: "id is required" });
+    const userId = (request as any).user?.id;
+    
+    if (!userId) {
+      return response.status(401).json({ error: "Unauthorized" });
     }
 
     const bodyResult = updateUserSchema.safeParse(request.body);
@@ -75,7 +83,8 @@ export class UserController {
     }
 
     try {
-      const user = await this.userService.update(id, bodyResult.data as any);
+      const user = await this.userService.update(userId, bodyResult.data as any);
+
       return response.json({
         id: user.id,
         name: user.name,
@@ -83,17 +92,19 @@ export class UserController {
         rol: user.rol
       });
     } catch (error) {
-      return response.status(404).json({ error: "User not found" });
+        console.error("ERROR REAL:", error);
+        return response.status(500).json({ error: "Internal error" });
     }
   };
 
   delete = async (request: Request, response: Response) => {
-    const { id } = request.params;
-    if (!id || typeof id !== "string") {
-      return response.status(400).json({ error: "id is required" });
+    const userId = (request as any).user?.id;
+
+    if (!userId) {
+      return response.status(401).json({ error: "Unauthorized" });
     }
 
-    await this.userService.delete(id);
+    await this.userService.delete(userId);
     return response.status(204).send();
   };
 }
