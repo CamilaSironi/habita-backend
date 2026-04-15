@@ -1,7 +1,7 @@
 import {
   Column,
   Entity,
-  PrimaryGeneratedColumn,
+  PrimaryColumn,
   Index
 } from "typeorm";
 
@@ -9,7 +9,7 @@ export type UserRol = "admin" | "tenant" | "owner";
 
 @Entity({ name: "users" })
 export class UserEntity {
-  @PrimaryGeneratedColumn("uuid")
+  @PrimaryColumn({ type: "text" })
   id!: string;
 
   @Column({ type: "text" })
@@ -28,4 +28,10 @@ export class UserEntity {
     enumName: "user_role"
   })
   rol!: UserRol;
+
+  @Column({ name: "created_at", type: "timestamptz" })
+  createdAt!: Date;
+
+  @Column({ name: "updated_at", type: "timestamptz" })
+  updatedAt!: Date;
 }

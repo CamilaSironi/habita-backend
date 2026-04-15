@@ -22,10 +22,6 @@ export class FavoritesEntity {
   @JoinColumn({ name: "property_id" })
   property!: PropertyEntity;
 
-  @Column({ name: "user_id", type: "uuid", nullable: false })
+  @Column({ name: "user_id", type: "text", nullable: false })
   userId!: string;
-
-  @ManyToOne(() => UserEntity, { onDelete: "CASCADE" })
-  @JoinColumn({ name: "user_id" })
-  user!: UserEntity;
 }

@@ -21,7 +21,7 @@ export class InquiryEntity {
   @JoinColumn({ name: "property_id" })
   property!: PropertyEntity;
 
-  @Column({ name: "user_id", type: "uuid", nullable: true })
+  @Column({ name: "user_id", type: "text", nullable: true })
   userId!: string | null;
 
   @ManyToOne(() => UserEntity, { onDelete: "SET NULL" })

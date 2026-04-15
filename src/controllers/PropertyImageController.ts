@@ -20,19 +20,21 @@ export class PropertyImageController {
   constructor(private readonly propertyImageService: PropertyImageService) {}
 
   listByProperty = async (request: Request, response: Response) => {
-    const { propertyId } = request.params;
-    if (!propertyId || typeof propertyId !== "string") {
-      return response.status(400).json({ error: "propertyId is required" });
+    const { publicId } = request.params;
+
+    if (!publicId || typeof publicId !== "string") {
+      return response.status(400).json({ error: "publicId is required" });
     }
 
-    const images = await this.propertyImageService.getByPropertyId(propertyId);
+    const images = await this.propertyImageService.getByPropertyId(publicId);
     return response.json(images);
   };
 
   create = async (request: Request, response: Response) => {
-    const { propertyId } = request.params;
-    if (!propertyId || typeof propertyId !== "string") {
-      return response.status(400).json({ error: "propertyId is required" });
+    const { publicId } = request.params;
+
+    if (!publicId || typeof publicId !== "string") {
+      return response.status(400).json({ error: "publicId is required" });
     }
 
     const bodyResult = createImageSchema.safeParse(request.body);
@@ -44,7 +46,7 @@ export class PropertyImageController {
     }
 
     const image = await this.propertyImageService.create({
-      propertyId,
+      propertyId: publicId,
       ...bodyResult.data
     } as any);
     return response.status(201).json(image);
@@ -83,15 +85,16 @@ export class PropertyImageController {
   };
 
   setCover = async (request: Request, response: Response) => {
-    const { propertyId, imageId } = request.params;
-    if (!propertyId || typeof propertyId !== "string") {
-      return response.status(400).json({ error: "propertyId is required" });
+    const { publicId, imageId } = request.params;
+    
+    if (!publicId || typeof publicId !== "string") {
+      return response.status(400).json({ error: "publicId is required" });
     }
     if (!imageId || typeof imageId !== "string") {
       return response.status(400).json({ error: "imageId is required" });
     }
 
-    await this.propertyImageService.setCover(propertyId, imageId);
+    await this.propertyImageService.setCover(publicId, imageId);
     return response.status(204).send();
   };
 }

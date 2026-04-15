@@ -36,7 +36,7 @@ export class InitSchema1739720000000 implements MigrationInterface {
 
     await queryRunner.query(`
       CREATE TABLE IF NOT EXISTS users (
-        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        id TEXT PRIMARY KEY,
         email TEXT NOT NULL UNIQUE,
         name TEXT NOT NULL,
         password TEXT,
@@ -63,7 +63,7 @@ export class InitSchema1739720000000 implements MigrationInterface {
         latitude NUMERIC(9,6) NOT NULL CHECK (latitude BETWEEN -90 AND 90),
         longitude NUMERIC(9,6) NOT NULL CHECK (longitude BETWEEN -180 AND 180),
         is_published BOOLEAN NOT NULL DEFAULT TRUE,
-        owner_id UUID REFERENCES users(id) ON DELETE SET NULL,
+        owner_id TEXT REFERENCES users(id) ON DELETE SET NULL,
         created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
         updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
       )
@@ -84,7 +84,7 @@ export class InitSchema1739720000000 implements MigrationInterface {
 
     await queryRunner.query(`
       CREATE TABLE IF NOT EXISTS favorites (
-        user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        user_id TEXT NOT NULL,
         property_id UUID NOT NULL REFERENCES properties(id) ON DELETE CASCADE,
         created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
         PRIMARY KEY (user_id, property_id)
@@ -95,7 +95,7 @@ export class InitSchema1739720000000 implements MigrationInterface {
       CREATE TABLE IF NOT EXISTS inquiries (
         id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
         property_id UUID NOT NULL REFERENCES properties(id) ON DELETE RESTRICT,
-        user_id UUID REFERENCES users(id) ON DELETE SET NULL,
+        user_id TEXT,
         contact_name TEXT NOT NULL,
         contact_email TEXT NOT NULL,
         message TEXT NOT NULL CHECK (length(trim(message)) > 0),
@@ -103,6 +103,12 @@ export class InitSchema1739720000000 implements MigrationInterface {
         created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
         updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
       )
+    `);
+
+    await queryRunner.query(`
+      ALTER TABLE users
+      ADD COLUMN IF NOT EXISTS created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      ADD COLUMN IF NOT EXISTS updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW();
     `);
 
     await queryRunner.query(`CREATE INDEX IF NOT EXISTS idx_properties_city ON properties(city)`);

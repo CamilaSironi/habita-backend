@@ -36,10 +36,10 @@ export function createApp(dataSource: DataSource) {
 	const propertyImageRepository = new TypeormPropertyImageRepository(dataSource.getRepository(PropertyImageEntity));
 	const userRepository = new TypeormUserRepository(dataSource.getRepository(UserEntity));
 
-	const favoritesService = new FavoritesService(favoritesRepository);
+	const favoritesService = new FavoritesService(favoritesRepository, propertyRepository);
 	const inquiryService = new InquiryService(inquiryRepository, propertyRepository);
 	const propertyService = new PropertyService(propertyRepository);
-	const propertyImageService = new PropertyImageService(propertyImageRepository);
+	const propertyImageService = new PropertyImageService(propertyImageRepository, propertyRepository);
 	const userService = new UserService(userRepository);
 
 	const favoritesController = new FavoritesController(favoritesService);
