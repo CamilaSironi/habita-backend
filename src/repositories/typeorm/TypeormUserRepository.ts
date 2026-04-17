@@ -13,7 +13,6 @@ export class TypeormUserRepository implements UserRepository {
             id: user.id,
             name: user.name,
             email: user.email,
-            password: user.password,
             rol: user.rol
         };
     }
@@ -23,7 +22,6 @@ export class TypeormUserRepository implements UserRepository {
             id: input.id,
             name: input.name,
             email: input.email,
-            password: input.password,
             rol: input.rol
         });
 
@@ -33,9 +31,27 @@ export class TypeormUserRepository implements UserRepository {
             id: saved.id,
             name: saved.name,
             email: saved.email,
-            password: saved.password,
             rol: saved.rol
         };
+    }
+
+    async findOrCreate(input: {
+        id: string;
+        email?: string;
+        name?: string;
+        }): Promise<User> {
+        let user = await this.getMe(input.id);
+
+        if (!user) {
+            user = await this.create({
+                id: input.id,
+                email: input.email ?? "",
+                name: input.name ?? "User",
+                rol: "tenant"
+            });
+        }
+
+        return user;
     }
 
     async update(id: string, input: UpdateUserInput): Promise<User> {
@@ -54,7 +70,6 @@ export class TypeormUserRepository implements UserRepository {
             id: saved.id,
             name: saved.name,
             email: saved.email,
-            password: saved.password,
             rol: saved.rol
         };
     }

@@ -39,7 +39,6 @@ export class InitSchema1739720000000 implements MigrationInterface {
         id TEXT PRIMARY KEY,
         email TEXT NOT NULL UNIQUE,
         name TEXT NOT NULL,
-        password TEXT,
         rol user_role NOT NULL DEFAULT 'tenant',
         created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
         updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
