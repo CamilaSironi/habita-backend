@@ -2,13 +2,6 @@ import type { Request, Response } from "express";
 import { z } from "zod";
 import type { UserService } from "../services/UserService";
 
-const createUserSchema = z.object({
-  name: z.string().trim().min(2),
-  email: z.string().trim().email(),
-  password: z.string().min(6),
-  rol: z.enum(["admin", "tenant", "owner"])
-});
-
 const updateUserSchema = z.object({
   name: z.string().trim().min(2).optional(),
   email: z.string().trim().email().optional(),
@@ -18,38 +11,6 @@ const updateUserSchema = z.object({
 
 export class UserController {
   constructor(private readonly userService: UserService) {}
-
-  create = async (request: Request, response: Response) => {
-    const bodyResult = createUserSchema.safeParse(request.body);
-    if (!bodyResult.success) {
-      return response.status(400).json({
-        error: "Invalid payload",
-        details: bodyResult.error.flatten()
-      });
-    }
-
-    try {
-      const authUser = (request as any).user;
-
-      if (!authUser?.id) {
-        return response.status(401).json({ error: "Unauthorized" });
-      }
-
-      const user = await this.userService.create({
-        id: authUser.id,
-        ...bodyResult.data
-      });
-
-      return response.status(201).json({
-        id: user.id,
-        name: user.name,
-        email: user.email,
-        rol: user.rol
-      });
-    } catch (error) {
-      return response.status(500).json(error);
-    }
-  };
 
   getMe = async (req: Request, res: Response) => {
     const userId = (req as any).user?.id;

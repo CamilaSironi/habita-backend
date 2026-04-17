@@ -1,27 +1,38 @@
 import { env } from "../config/env";
 import { auth } from "express-oauth2-jwt-bearer";
 import type { Request, Response, NextFunction } from "express";
+import { UserService } from "../services/UserService";
 
-const checkJwt = auth({
-  audience: env.AUTH0_AUDIENCE || "",
-  issuerBaseURL: env.AUTH0_ISSUER_BASE_URL || "",
-  tokenSigningAlg: "RS256"
-});
+export function authMiddleware(userService: UserService) {
 
-export const authMiddleware = [
-  checkJwt,
-  (req: Request, res: Response, next: NextFunction) => {
-    const payload = (req as any).auth?.payload;
+  const checkJwt = auth({
+    audience: env.AUTH0_AUDIENCE || "",
+    issuerBaseURL: env.AUTH0_ISSUER_BASE_URL || "",
+    tokenSigningAlg: "RS256"
+  });
 
-    if (!payload?.sub) {
-      return res.status(401).json({ error: "Unauthorized" });
-    }
+  return [
+    checkJwt,
+    async (req: Request, res: Response, next: NextFunction) => {
+      const payload = (req as any).auth?.payload;
 
-    (req as any).user = {
+      if (!payload?.sub) {
+        return res.status(401).json({ error: "Unauthorized" });
+      }
+
+      (req as any).user = {
+        id: payload.sub,
+        email: payload.email,
+        name: payload.name
+      };
+
+      await userService.findOrCreate({
       id: payload.sub,
-      email: payload.email
-    };
+      email: payload.email,
+      name: payload.name
+    });
 
-    next();
-  }
-];
+      next();
+    }
+  ];
+}

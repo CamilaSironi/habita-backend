@@ -2,7 +2,9 @@ import {
   Column,
   Entity,
   PrimaryColumn,
-  Index
+  Index,
+  CreateDateColumn,
+  UpdateDateColumn
 } from "typeorm";
 
 export type UserRol = "admin" | "tenant" | "owner";
@@ -29,9 +31,9 @@ export class UserEntity {
   })
   rol!: UserRol;
 
-  @Column({ name: "created_at", type: "timestamptz" })
+  @CreateDateColumn({ name: "created_at", type: "timestamptz" })
   createdAt!: Date;
 
-  @Column({ name: "updated_at", type: "timestamptz" })
+  @UpdateDateColumn({ name: "updated_at", type: "timestamptz" })
   updatedAt!: Date;
 }

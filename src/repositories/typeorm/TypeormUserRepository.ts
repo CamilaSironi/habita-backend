@@ -18,7 +18,7 @@ export class TypeormUserRepository implements UserRepository {
         };
     }
 
-    async create(input: CreateUserInput): Promise<User> {
+    async create(input: CreateUserInput & { id: string }): Promise<User> {
         const userToSave = this.ormRepository.create({
             id: input.id,
             name: input.name,
