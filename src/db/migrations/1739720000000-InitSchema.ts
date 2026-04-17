@@ -78,6 +78,7 @@ export class InitSchema1739720000000 implements MigrationInterface {
         position SMALLINT NOT NULL DEFAULT 0,
         is_cover BOOLEAN NOT NULL DEFAULT FALSE,
         created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+        updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
         UNIQUE (property_id, position)
       )
     `);
@@ -103,12 +104,6 @@ export class InitSchema1739720000000 implements MigrationInterface {
         created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
         updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
       )
-    `);
-
-    await queryRunner.query(`
-      ALTER TABLE users
-      ADD COLUMN IF NOT EXISTS created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-      ADD COLUMN IF NOT EXISTS updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW();
     `);
 
     await queryRunner.query(`CREATE INDEX IF NOT EXISTS idx_properties_city ON properties(city)`);
@@ -145,6 +140,14 @@ export class InitSchema1739720000000 implements MigrationInterface {
     await queryRunner.query(`
       CREATE TRIGGER trg_properties_updated_at
       BEFORE UPDATE ON properties
+      FOR EACH ROW
+      EXECUTE FUNCTION set_updated_at()
+    `);
+
+    await queryRunner.query(`DROP TRIGGER IF EXISTS trg_property_images_updated_at ON property_images`);
+    await queryRunner.query(`
+      CREATE TRIGGER trg_property_images_updated_at
+      BEFORE UPDATE ON property_images
       FOR EACH ROW
       EXECUTE FUNCTION set_updated_at()
     `);
