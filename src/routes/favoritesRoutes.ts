@@ -1,13 +1,14 @@
-import { Router } from "express";
-import { authMiddleware } from "../middlewares/auth.middleware";
+import { Handler, Router } from "express";
 import type { FavoritesController } from "../controllers/FavoritesController";
 
-export function createFavoritesRoutes(favoritesController: FavoritesController) {
+export function createFavoritesRoutes(favoritesController: FavoritesController, AuthMiddleware: Handler[]) {
   const router = Router();
 
-  router.post("/favorites", authMiddleware, favoritesController.add);
-  router.delete("/favorites/:propertyId", authMiddleware, favoritesController.remove);
-  router.get("/favorites", authMiddleware, favoritesController.list);
+  router.use(AuthMiddleware);
+
+  router.post("/favorites", favoritesController.add);
+  router.delete("/favorites/:propertyId", favoritesController.remove);
+  router.get("/favorites", favoritesController.list);
 
   return router;
 }

@@ -28,6 +28,7 @@ import { createPropertyImageRoutes } from "./routes/propertyImageRoutes";
 import { createUserRoutes } from "./routes/userRoutes";
 import { healthRoutes } from "./routes/healthRoutes";
 import { errorHandler } from "./middlewares/errorHandler";
+import { authMiddleware } from "./middlewares/auth.middleware";
 
 export function createApp(dataSource: DataSource) {
 	const favoritesRepository = new TypeormFavoritesRepository(dataSource.getRepository(FavoritesEntity));
@@ -48,6 +49,8 @@ export function createApp(dataSource: DataSource) {
 	const propertyImageController = new PropertyImageController(propertyImageService);
 	const userController = new UserController(userService);
 
+	const AuthMiddleware = authMiddleware(userService);
+
 	const app = express();
 
 	app.use(cors());
@@ -56,9 +59,9 @@ export function createApp(dataSource: DataSource) {
 	app.use("/api", healthRoutes);
 	app.use("/api", createPropertyRoutes(propertyController));
 	app.use("/api", createInquiryRoutes(inquiryController));
-	app.use("/api", createFavoritesRoutes(favoritesController));
-	app.use("/api", createUserRoutes(userController));
-	app.use("/api", createPropertyImageRoutes(propertyImageController));
+	app.use("/api", createFavoritesRoutes(favoritesController, AuthMiddleware));
+	app.use("/api", createUserRoutes(userController, AuthMiddleware));
+	app.use("/api", createPropertyImageRoutes(propertyImageController, AuthMiddleware));
 
 	app.use(errorHandler);
 
