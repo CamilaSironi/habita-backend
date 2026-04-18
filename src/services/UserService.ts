@@ -13,7 +13,7 @@ export class UserService {
   }
   
   async getMe(id: string): Promise<User | null> {
-    return this.userRepository.getMe(id);
+    return this.userRepository.findById(id);
   }
 
   async update(id: string, input: UpdateUserInput): Promise<User> {

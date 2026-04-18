@@ -6,7 +6,7 @@ import { UserEntity } from "../../db/entities/UserEntity";
 export class TypeormUserRepository implements UserRepository {
     constructor(private readonly ormRepository: Repository<UserEntity>) {}
 
-    async getMe(id: string): Promise<User | null> {
+    async findById(id: string): Promise<User | null> {
         const user = await this.ormRepository.findOne({ where: { id } });
         if (!user) return null;
         return {
@@ -20,8 +20,8 @@ export class TypeormUserRepository implements UserRepository {
     async create(input: CreateUserInput & { id: string }): Promise<User> {
         const userToSave = this.ormRepository.create({
             id: input.id,
-            name: input.name,
-            email: input.email,
+            name: input.name ?? input.email ?? "User",
+            email: input.email ?? `${input.id}@auth0.local`,
             rol: input.rol
         });
 
@@ -40,13 +40,13 @@ export class TypeormUserRepository implements UserRepository {
         email?: string;
         name?: string;
         }): Promise<User> {
-        let user = await this.getMe(input.id);
+        let user = await this.findById(input.id);
 
         if (!user) {
             user = await this.create({
                 id: input.id,
-                email: input.email ?? "",
-                name: input.name ?? "User",
+                email: input.email ?? `${input.id}@auth0.local`,
+                name: input.name ?? input.email?? "User",
                 rol: "tenant"
             });
         }
