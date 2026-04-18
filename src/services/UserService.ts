@@ -9,27 +9,14 @@ export class UserService {
     email?: string;
     name?: string;
   }): Promise<User> {
-    let user = await this.userRepository.getMe(input.id);
-
-    if (!user) {
-      user = await this.userRepository.create({
-        id: input.id,
-        email: input.email ?? "",
-        name: input.name ?? "User",
-        password: "",
-        rol: "tenant"
-      });
-    }
-
-    return user;
+    return this.userRepository.findOrCreate(input);
   }
   
   async getMe(id: string): Promise<User | null> {
-    return this.userRepository.getMe(id);
+    return this.userRepository.findById(id);
   }
 
   async update(id: string, input: UpdateUserInput): Promise<User> {
-    // TODO: Hash password if updating
     return this.userRepository.update(id, input);
   }
 

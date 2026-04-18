@@ -5,7 +5,6 @@ import type { UserService } from "../services/UserService";
 const updateUserSchema = z.object({
   name: z.string().trim().min(2).optional(),
   email: z.string().trim().email().optional(),
-  password: z.string().min(6).optional(),
   rol: z.enum(["admin", "tenant", "owner"]).optional()
 });
 

@@ -21,9 +21,6 @@ export class UserEntity {
   @Index()
   email!: string;
 
-  @Column({ type: "text" })
-  password!: string;
-
   @Column({
     type: "enum",
     enum: ["admin", "tenant", "owner"],

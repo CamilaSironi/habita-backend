@@ -6,14 +6,13 @@ import { UserEntity } from "../../db/entities/UserEntity";
 export class TypeormUserRepository implements UserRepository {
     constructor(private readonly ormRepository: Repository<UserEntity>) {}
 
-    async getMe(id: string): Promise<User | null> {
+    async findById(id: string): Promise<User | null> {
         const user = await this.ormRepository.findOne({ where: { id } });
         if (!user) return null;
         return {
             id: user.id,
             name: user.name,
             email: user.email,
-            password: user.password,
             rol: user.rol
         };
     }
@@ -21,9 +20,8 @@ export class TypeormUserRepository implements UserRepository {
     async create(input: CreateUserInput & { id: string }): Promise<User> {
         const userToSave = this.ormRepository.create({
             id: input.id,
-            name: input.name,
-            email: input.email,
-            password: input.password,
+            name: input.name ?? input.email ?? "User",
+            email: input.email ?? `${input.id}@auth0.local`,
             rol: input.rol
         });
 
@@ -33,9 +31,27 @@ export class TypeormUserRepository implements UserRepository {
             id: saved.id,
             name: saved.name,
             email: saved.email,
-            password: saved.password,
             rol: saved.rol
         };
+    }
+
+    async findOrCreate(input: {
+        id: string;
+        email?: string;
+        name?: string;
+        }): Promise<User> {
+        let user = await this.findById(input.id);
+
+        if (!user) {
+            user = await this.create({
+                id: input.id,
+                email: input.email ?? `${input.id}@auth0.local`,
+                name: input.name ?? input.email?? "User",
+                rol: "tenant"
+            });
+        }
+
+        return user;
     }
 
     async update(id: string, input: UpdateUserInput): Promise<User> {
@@ -54,7 +70,6 @@ export class TypeormUserRepository implements UserRepository {
             id: saved.id,
             name: saved.name,
             email: saved.email,
-            password: saved.password,
             rol: saved.rol
         };
     }
